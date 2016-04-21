@@ -369,8 +369,14 @@ angular.module('mdColorPicker', [])
 					$cookies.putObject('mdColorPickerHistory', strHistory );
 				}
 			},
-			get: function() {
-				return history;
+			get: function(format) {
+				var res = history;
+				if(format === 'hex'){
+					res = history.filter(function(elt){
+						return elt._originalInput.substr(0,4) !== 'rgba';
+					})
+				}
+				return res;
 			},
 			reset: function() {
 				history = [];
@@ -415,7 +421,8 @@ angular.module('mdColorPicker', [])
 				mdColorGenericPalette: '=?',
 				mdColorMaterialPalette: '=?',
 				mdColorHistory: '=?',
-				mdColorDefaultTab: '=?'
+				mdColorDefaultTab: '=?',
+				mdColorOutputFormat:'@'
 			},
 			controller: ['$scope', '$element', '$attrs', '$mdDialog', '$mdColorPicker', function( $scope, $element, $attrs, $mdDialog, $mdColorPicker ) {
 				var didJustClose = false;
@@ -459,6 +466,10 @@ angular.module('mdColorPicker', [])
 				$scope.mdColorMaterialPalette = $scope.mdColorMaterialPalette === undefined ? true : $scope.mdColorMaterialPalette;
 				$scope.mdColorHistory = $scope.mdColorHistory === undefined ? true : $scope.mdColorHistory;
 
+				console.log("mdColorOutputFormat",$scope.mdColorOutputFormat);
+				$scope.mdColorOutputFormat = ($scope.mdColorOutputFormat === undefined || ($scope.mdColorOutputFormat !== 'hex' &&
+																				 $scope.mdColorOutputFormat !== 'rgb' &&
+																				 $scope.mdColorOutputFormat !== 'hsl' )) ? null : $scope.mdColorOutputFormat;
 
 				// Set the starting value
 				updateValue();
@@ -505,6 +516,7 @@ angular.module('mdColorPicker', [])
 						mdColorMaterialPalette: $scope.mdColorMaterialPalette,
 						mdColorHistory: $scope.mdColorHistory,
 						mdColorDefaultTab: $scope.mdColorDefaultTab,
+						mdColorOutputFormat : $scope.mdColorOutputFormat,
 
 						$event: $event,
 
@@ -535,10 +547,11 @@ angular.module('mdColorPicker', [])
 				mdColorGenericPalette: '=',
 				mdColorMaterialPalette: '=',
 				mdColorHistory: '=',
-				mdColorDefaultTab: '='
+				mdColorDefaultTab: '=',
+				mdColorOutputFormat: '='
 			},
 			controller: function( $scope, $element, $attrs ) {
-			//	console.log( "mdColorPickerContainer Controller", Date.now() - dateClick, $scope );
+				console.log( "mdColorPickerContainer Controller", Date.now() - dateClick, $scope, colorHistory.get() );
 
 				function getTabIndex( tab ) {
 					var index = 0;
@@ -580,14 +593,17 @@ angular.module('mdColorPicker', [])
 					'toHslString'
 				];
 
+				// Can't have alpha channel if output is hexa.
+				$scope.mdColorAlphaChannel = ($scope.mdColorOutputFormat === 'hex')?false : $scope.mdColorAlphaChannel;
 
+				$scope.type = 0;
 
 				$scope.default = $scope.default ? $scope.default : $scope.random ? tinycolor.random() : 'rgb(255,255,255)';
-				if ( $scope.value.search('#') >= 0 ) {
+				if ( $scope.value.search('#') >= 0 || $scope.mdColorOutputFormat === 'hex') {
 					$scope.type = 0;
-				} else if ( $scope.value.search('rgb') >= 0 ) {
+				} else if ( $scope.value.search('rgb') >= 0 || $scope.mdColorOutputFormat === 'rgb') {
 					$scope.type = 1;
-				} else if ( $scope.value.search('hsl') >= 0 ) {
+				} else if ( $scope.value.search('hsl') >= 0 || $scope.mdColorOutputFormat === 'hsl') {
 					$scope.type = 2;
 				}
 				$scope.color = new tinycolor($scope.value || $scope.default); // Set initial color
@@ -888,6 +904,7 @@ angular.module('mdColorPicker', [])
 							$scope.mdColorMaterialPalette = options.mdColorMaterialPalette;
 							$scope.mdColorHistory = options.mdColorHistory;
 							$scope.mdColorDefaultTab = options.mdColorDefaultTab;
+							$scope.mdColorOutputFormat = options.mdColorOutputFormat;
 
 					}],
 

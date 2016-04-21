@@ -103,6 +103,7 @@ $scope.scopeVariable.options = {
 | materialPalette     	| md-color-material-palette 	| Boolean     	| true               	| Show the material colors palette tab.                                                                                                                                                                                                                	|
 | history             	| md-color-history          	| Boolean     	| true               	| Show the history tab.                                                                                                                                                                                                                                	|
 | defaultTab          	| md-color-default-tab      	| String, Int 	| "spectrum"         	| Which tab should be selected when opening.  Can either be a string or index.  If the value is an index, do not count hidden/disabled tabs. <ul><li>spectrum</li><li>sliders</li><li>genericPalette</li><li>materialPalette</li><li>history</li></ul> 	|
+| OutputFormat         	| md-color-output-format      	| String    	| ""                   	| Set output type if provided (hex,rgb,hsl). remove the HEX,RGB and HSL top tabs. Filters the history list with hexa-compatible colors if 'hex'.                                                                                                        |
 
 
 ## Disclaimer
